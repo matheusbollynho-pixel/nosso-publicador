@@ -1,0 +1,4 @@
+.avisado
+node_modules/
+.env*
+.playwright-mcp/

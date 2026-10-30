@@ -1,0 +1,36 @@
+name: Renovar token do Instagram
+on:
+  schedule:
+    - cron: "17 9 1,15 * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  renovar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Renovar
+        env:
+          IG_TOKEN: ${{ secrets.IG_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          novo="$(node renovar-token.mjs)"
+          echo "::add-mask::$novo"
+          printf '%s' "$novo" | gh secret set IG_TOKEN
+      # O GitHub desliga agendamentos de repositório sem commit há 60 dias.
+      - name: Manter o agendamento ativo
+        run: |
+          git config user.name "publicador"
+          git config user.email "publicador@users.noreply.github.com"
+          git commit --allow-empty -m "mantém agendamento ativo"
+          git push
+      - name: Avisar se quebrou
+        if: failure()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: "node avisar.mjs \"⚠️ Falhou a renovação do token do Instagram. Veja: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID\""
