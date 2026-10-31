@@ -9,7 +9,8 @@ import { checarLegenda } from "./checar-legenda.mjs";
 
 const HORA = 3600_000;
 export const PADRAO = {
-  apiBase: process.env.IG_API_BASE || `https://graph.instagram.com/${process.env.IG_API_VERSION || "v26.0"}`,
+  // Token é de usuário do Facebook, então a API é a graph.facebook.com (não a graph.instagram.com).
+  apiBase: process.env.IG_API_BASE || `https://graph.facebook.com/${process.env.IG_API_VERSION || "v26.0"}`,
   token: process.env.IG_TOKEN,
   userId: process.env.IG_USER_ID,
   dryRun: process.env.DRY_RUN === "1",
